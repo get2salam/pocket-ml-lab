@@ -112,6 +112,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         metrics = mr["metrics"]
         if args.task == "classification":
             print(f"  Accuracy  : {metrics['accuracy']}")
+            print(f"  Balanced : {metrics['balanced_accuracy']}")
             print(f"  Macro F1  : {metrics['macro_f1']}")
             print(f"  Macro P   : {metrics['macro_precision']}")
             print(f"  Macro R   : {metrics['macro_recall']}")

@@ -5,6 +5,7 @@ import pytest
 
 from pocket_ml_lab.metrics.classification import (
     accuracy,
+    balanced_accuracy,
     confusion_matrix,
     per_class_metrics,
     classification_report,
@@ -64,9 +65,26 @@ def test_per_class_zero_precision():
     assert pcm["b"]["recall"] == 0.0
 
 
+def test_balanced_accuracy_penalizes_ignored_minority_class():
+    y_true = ["major", "major", "major", "minor"]
+    y_pred = ["major", "major", "major", "major"]
+
+    assert accuracy(y_true, y_pred) == pytest.approx(0.75)
+    assert balanced_accuracy(y_true, y_pred) == pytest.approx(0.5)
+
+
+def test_balanced_accuracy_empty():
+    assert balanced_accuracy([], []) == 0.0
+
+
+def test_balanced_accuracy_ignores_predicted_only_classes():
+    assert balanced_accuracy(["cat", "dog"], ["cat", "rabbit"]) == pytest.approx(0.5)
+
+
 def test_classification_report_keys():
     report = classification_report(["a", "b", "a"], ["a", "a", "a"])
     assert "accuracy" in report
+    assert "balanced_accuracy" in report
     assert "macro_f1" in report
     assert "per_class" in report
     assert "confusion_matrix" in report

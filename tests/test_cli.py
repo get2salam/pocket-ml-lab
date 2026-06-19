@@ -26,6 +26,7 @@ def test_run_classification_iris(capsys):
     assert "MajorityClassifier" in out
     assert "NearestCentroidClassifier" in out
     assert "Accuracy" in out
+    assert "Balanced" in out
 
 
 def test_run_regression_house(capsys):

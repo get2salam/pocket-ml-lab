@@ -49,6 +49,25 @@ def per_class_metrics(
     return result
 
 
+def balanced_accuracy(y_true: list[Any], y_pred: list[Any]) -> float:
+    """Mean recall across true classes for imbalanced classification evaluation.
+
+    Unlike plain accuracy, balanced accuracy gives each observed class the same
+    weight. This makes majority-class baselines easier to audit when a small
+    class is missed entirely.
+    """
+    _check_lengths(y_true, y_pred)
+    if not y_true:
+        return 0.0
+
+    recalls = []
+    for cls in sorted(set(y_true), key=str):
+        support = sum(t == cls for t in y_true)
+        true_positive = sum(t == cls and p == cls for t, p in zip(y_true, y_pred))
+        recalls.append(true_positive / support if support else 0.0)
+    return sum(recalls) / len(recalls)
+
+
 def classification_report(
     y_true: list[Any], y_pred: list[Any]
 ) -> dict[str, Any]:
@@ -64,6 +83,7 @@ def classification_report(
         "macro_precision": round(macro_prec, 6),
         "macro_recall": round(macro_rec, 6),
         "macro_f1": round(macro_f1, 6),
+        "balanced_accuracy": round(balanced_accuracy(y_true, y_pred), 6),
         "per_class": pcm,
         "confusion_matrix": {
             "classes": [str(c) for c in classes_cm],

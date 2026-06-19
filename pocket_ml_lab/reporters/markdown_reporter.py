@@ -66,6 +66,7 @@ def _render_markdown(results: dict[str, Any]) -> str:
                 "| Metric | Value |",
                 "|---|---|",
                 f"| Accuracy | {metrics.get('accuracy', '')} |",
+                f"| Balanced Accuracy | {metrics.get('balanced_accuracy', '')} |",
                 f"| Macro Precision | {metrics.get('macro_precision', '')} |",
                 f"| Macro Recall | {metrics.get('macro_recall', '')} |",
                 f"| Macro F1 | {metrics.get('macro_f1', '')} |",
