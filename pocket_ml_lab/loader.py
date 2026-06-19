@@ -13,7 +13,10 @@ def load_csv(path: str) -> list[dict[str, Any]]:
     Empty cells become None.
     """
     if not os.path.isfile(path):
-        raise FileNotFoundError(f"Dataset not found: {path}")
+        raise FileNotFoundError(
+            f"Dataset not found: '{path}'. "
+            f"Check the path or try one of the bundled examples in examples/."
+        )
 
     rows: list[dict[str, Any]] = []
     with open(path, newline="", encoding="utf-8-sig") as fh:

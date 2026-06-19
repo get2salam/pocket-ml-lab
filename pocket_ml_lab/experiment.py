@@ -23,7 +23,10 @@ class ExperimentConfig:
         feature_cols: list[str] | None = None,
     ) -> None:
         if task not in ("classification", "regression"):
-            raise ValueError(f"task must be 'classification' or 'regression', got '{task}'")
+            raise ValueError(
+                f"Unknown task '{task}'. Choose 'classification' for categorical targets "
+                f"or 'regression' for numeric targets."
+            )
         self.csv_path = csv_path
         self.target = target
         self.task = task
@@ -49,7 +52,8 @@ def run_experiment(config: ExperimentConfig) -> dict[str, Any]:
     all_cols = column_names(rows)
     if config.target not in all_cols:
         raise ValueError(
-            f"Target column '{config.target}' not found. Available: {all_cols}"
+            f"Target column '{config.target}' not found in dataset. "
+            f"Available columns: {all_cols}"
         )
 
     feature_cols = config.feature_cols or [c for c in all_cols if c != config.target]
