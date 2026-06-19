@@ -1,5 +1,7 @@
 """Experiment runner: ties loader → split → model(s) → metrics → results dict."""
 
+from __future__ import annotations
+
 from typing import Any
 
 from .loader import load_csv, column_names

@@ -56,20 +56,27 @@ pocket-ml run examples/iris_small.csv --target species --task classification --o
 ## Example output
 
 ```
+$ pocket-ml run examples/iris_small.csv --target species --task classification
+
 === Pocket ML Lab ===
 Dataset : examples/iris_small.csv
 Task    : classification
 Target  : species
-Split   : 80 train / 20 test (seed=42)
+Split   : 24 train / 6 test (seed=42)
 
---- Majority Classifier ---
-Accuracy : 0.3333
-Macro F1 : 0.1667
+--- MajorityClassifier ---
+  Accuracy  : 0.0
+  Macro F1  : 0.0
 
---- Nearest-Centroid Classifier ---
-Accuracy : 0.9333
-Macro F1 : 0.9330
+--- NearestCentroidClassifier ---
+  Accuracy  : 0.833333
+  Macro F1  : 0.555556
 ```
+
+> The `MajorityClassifier` scores 0 here because the seeded shuffle places all
+> versicolor rows in the training set — the test only contains setosa and virginica.
+> This is intentional: it shows exactly why you need a smarter model than majority
+> voting when class distributions shift between splits.
 
 ---
 

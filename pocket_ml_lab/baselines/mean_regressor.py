@@ -1,5 +1,7 @@
 """Mean regressor — predicts the training-set mean for all samples."""
 
+from __future__ import annotations
+
 from typing import Any
 
 

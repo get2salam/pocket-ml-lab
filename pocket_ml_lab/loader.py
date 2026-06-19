@@ -1,5 +1,7 @@
 """CSV loader with automatic type coercion and missing-value handling."""
 
+from __future__ import annotations
+
 import csv
 import io
 import os

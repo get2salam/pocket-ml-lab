@@ -1,5 +1,7 @@
 """Nearest-centroid classifier — classify by Euclidean distance to per-class centroids."""
 
+from __future__ import annotations
+
 import math
 from typing import Any
 
