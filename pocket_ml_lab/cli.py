@@ -105,6 +105,12 @@ def _cmd_run(args: argparse.Namespace) -> int:
     print(f"Task    : {args.task}")
     print(f"Target  : {args.target}")
     print(f"Split   : {ds['n_train']} train / {ds['n_test']} test (seed={args.seed})")
+    evaluation = results.get("evaluation", {})
+    if evaluation.get("best_model"):
+        print(
+            f"Best    : {evaluation['best_model']} "
+            f"({evaluation['primary_metric']}={evaluation['best_score']})"
+        )
     print()
 
     for mr in results["results"]:

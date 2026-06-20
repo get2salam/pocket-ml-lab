@@ -102,6 +102,8 @@ def run_experiment(config: ExperimentConfig) -> dict[str, Any]:
                 },
             })
 
+    evaluation = _evaluation_summary(model_results, config.task)
+
     return {
         "config": config.to_dict(),
         "dataset": {
@@ -113,5 +115,38 @@ def run_experiment(config: ExperimentConfig) -> dict[str, Any]:
             "features": feature_cols,
             "profile": profile,
         },
+        "evaluation": evaluation,
         "results": model_results,
+    }
+
+
+def _evaluation_summary(results: list[dict[str, Any]], task: str) -> dict[str, Any]:
+    """Rank model results using the task's primary metric.
+
+    Classification prefers balanced accuracy so minority-class failures are not
+    hidden by high plain accuracy. Regression prefers lower RMSE.
+    """
+    metric = "balanced_accuracy" if task == "classification" else "rmse"
+    direction = "higher" if task == "classification" else "lower"
+    reverse = direction == "higher"
+
+    rankings = []
+    for result in results:
+        score = result.get("metrics", {}).get(metric)
+        if isinstance(score, (int, float)):
+            rankings.append({
+                "model": result.get("model", ""),
+                "metric": metric,
+                "score": score,
+            })
+
+    rankings.sort(key=lambda item: (item["score"], item["model"]), reverse=reverse)
+    best = rankings[0] if rankings else None
+
+    return {
+        "primary_metric": metric,
+        "direction": direction,
+        "best_model": best["model"] if best else None,
+        "best_score": best["score"] if best else None,
+        "rankings": rankings,
     }

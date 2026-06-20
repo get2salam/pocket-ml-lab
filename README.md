@@ -47,6 +47,7 @@ pocket-ml run examples/iris_small.csv --target species --task classification --o
 | **Nearest-centroid classifier** | Per-class centroids; classifies by Euclidean distance |
 | **Classification metrics** | Accuracy, per-class precision/recall/F1, macro averages, confusion matrix |
 | **Regression metrics** | MAE, RMSE, R² |
+| **Evaluation summary** | Automatically highlights the best baseline by task-appropriate primary metric |
 | **JSON reports** | Machine-readable experiment records |
 | **Markdown reports** | Human-readable tables and metric summaries |
 | **Zero dependencies** | Standard library only — runs anywhere Python 3.9+ is present |
@@ -63,13 +64,16 @@ Dataset : examples/iris_small.csv
 Task    : classification
 Target  : species
 Split   : 24 train / 6 test (seed=42)
+Best    : NearestCentroidClassifier (balanced_accuracy=0.75)
 
 --- MajorityClassifier ---
   Accuracy  : 0.0
+  Balanced : 0.0
   Macro F1  : 0.0
 
 --- NearestCentroidClassifier ---
   Accuracy  : 0.833333
+  Balanced : 0.75
   Macro F1  : 0.555556
 ```
 

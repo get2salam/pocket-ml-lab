@@ -5,6 +5,7 @@ import tempfile
 import pytest
 
 from pocket_ml_lab.cli import main
+from pocket_ml_lab.experiment import ExperimentConfig, run_experiment
 
 
 IRIS_CSV = os.path.join(os.path.dirname(__file__), "..", "examples", "iris_small.csv")
@@ -27,6 +28,7 @@ def test_run_classification_iris(capsys):
     assert "NearestCentroidClassifier" in out
     assert "Accuracy" in out
     assert "Balanced" in out
+    assert "Best" in out
 
 
 def test_run_regression_house(capsys):
@@ -73,3 +75,23 @@ def test_run_custom_seed_and_split(capsys):
     assert ret == 0
     out = capsys.readouterr().out
     assert "seed=7" in out
+
+
+def test_classification_experiment_ranks_models_by_balanced_accuracy():
+    results = run_experiment(ExperimentConfig(IRIS_CSV, "species", "classification"))
+    summary = results["evaluation"]
+
+    assert summary["primary_metric"] == "balanced_accuracy"
+    assert summary["direction"] == "higher"
+    assert summary["best_model"] == "NearestCentroidClassifier"
+    assert summary["rankings"][0]["score"] >= summary["rankings"][-1]["score"]
+
+
+def test_regression_experiment_ranks_models_by_rmse():
+    results = run_experiment(ExperimentConfig(HOUSE_CSV, "price", "regression"))
+    summary = results["evaluation"]
+
+    assert summary["primary_metric"] == "rmse"
+    assert summary["direction"] == "lower"
+    assert summary["best_model"] == "MeanRegressor"
+    assert summary["best_score"] == results["results"][0]["metrics"]["rmse"]

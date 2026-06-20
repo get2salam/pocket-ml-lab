@@ -26,6 +26,7 @@ def write_html_report(results: dict[str, Any], path: str) -> str:
 def _render_markdown(results: dict[str, Any]) -> str:
     cfg = results.get("config", {})
     ds = results.get("dataset", {})
+    evaluation = results.get("evaluation", {})
     model_results = results.get("results", [])
     task = cfg.get("task", "classification")
 
@@ -51,6 +52,15 @@ def _render_markdown(results: dict[str, Any]) -> str:
         f"| Training samples | {ds.get('n_train', '')} |",
         f"| Test samples | {ds.get('n_test', '')} |",
         f"| Features | {', '.join(f'`{c}`' for c in ds.get('features', []))} |",
+        "",
+        "## Evaluation Summary",
+        "",
+        "| Item | Value |",
+        "|---|---|",
+        f"| Primary metric | `{evaluation.get('primary_metric', '')}` |",
+        f"| Direction | {evaluation.get('direction', '')} is better |",
+        f"| Best model | {evaluation.get('best_model', '')} |",
+        f"| Best score | {evaluation.get('best_score', '')} |",
         "",
         "## Results",
         "",
