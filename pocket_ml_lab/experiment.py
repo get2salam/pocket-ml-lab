@@ -7,7 +7,7 @@ from typing import Any
 from .loader import load_csv, column_names
 from .profiler import profile_dataset
 from .splitter import train_test_split
-from .baselines import MajorityClassifier, MeanRegressor, NearestCentroidClassifier
+from .baselines import MajorityClassifier, MeanRegressor, MedianRegressor, NearestCentroidClassifier
 from .metrics.classification import classification_report
 from .metrics.regression import mae, rmse, r2_score
 
@@ -88,7 +88,7 @@ def run_experiment(config: ExperimentConfig) -> dict[str, Any]:
     else:  # regression
         y_train_num = [float(v) for v in y_train if isinstance(v, (int, float))]
         y_test_num = [float(v) for v in y_test if isinstance(v, (int, float))]
-        models_reg = [MeanRegressor()]
+        models_reg = [MeanRegressor(), MedianRegressor()]
         for model in models_reg:
             model.fit(X_train, y_train_num)
             y_pred = model.predict(X_test)

@@ -1,9 +1,10 @@
-"""Tests for baseline models: majority classifier, mean regressor, nearest centroid."""
+"""Tests for baseline models: majority classifier, mean/median regressors, nearest centroid."""
 
 import pytest
 
 from pocket_ml_lab.baselines.majority_classifier import MajorityClassifier
 from pocket_ml_lab.baselines.mean_regressor import MeanRegressor
+from pocket_ml_lab.baselines.median_regressor import MedianRegressor
 from pocket_ml_lab.baselines.nearest_centroid import NearestCentroidClassifier
 
 
@@ -81,6 +82,60 @@ def test_mean_regressor_describe():
     reg.fit(_rows(2), [1.0, 3.0])
     d = reg.describe()
     assert d["training_mean"] == pytest.approx(2.0)
+
+
+# ── MedianRegressor ───────────────────────────────────────────────────────────
+
+def test_median_regressor_odd_count():
+    reg = MedianRegressor()
+    reg.fit(_rows(5), [1.0, 3.0, 5.0, 7.0, 9.0])
+    preds = reg.predict(_rows(3))
+    assert all(p == pytest.approx(5.0) for p in preds)
+
+
+def test_median_regressor_even_count():
+    reg = MedianRegressor()
+    reg.fit(_rows(4), [1.0, 2.0, 3.0, 4.0])
+    preds = reg.predict(_rows(2))
+    assert all(p == pytest.approx(2.5) for p in preds)
+
+
+def test_median_regressor_robust_to_outlier():
+    # Mean would be (1+2+3+100)/4 = 26.5; median should be 2.5
+    reg = MedianRegressor()
+    reg.fit(_rows(4), [1.0, 2.0, 3.0, 100.0])
+    preds = reg.predict(_rows(1))
+    assert preds[0] == pytest.approx(2.5)
+
+
+def test_median_regressor_single_value():
+    reg = MedianRegressor()
+    reg.fit(_rows(1), [42.0])
+    assert reg.predict(_rows(1)) == [pytest.approx(42.0)]
+
+
+def test_median_regressor_returns_correct_length():
+    reg = MedianRegressor()
+    reg.fit(_rows(3), [1.0, 2.0, 3.0])
+    assert len(reg.predict(_rows(7))) == 7
+
+
+def test_median_regressor_predict_before_fit():
+    with pytest.raises(RuntimeError):
+        MedianRegressor().predict(_rows(1))
+
+
+def test_median_regressor_no_numeric_values():
+    with pytest.raises(ValueError):
+        MedianRegressor().fit(_rows(2), [None, None])
+
+
+def test_median_regressor_describe():
+    reg = MedianRegressor()
+    reg.fit(_rows(3), [1.0, 2.0, 3.0])
+    d = reg.describe()
+    assert d["training_median"] == pytest.approx(2.0)
+    assert "model" in d
 
 
 # ── NearestCentroidClassifier ─────────────────────────────────────────────────
