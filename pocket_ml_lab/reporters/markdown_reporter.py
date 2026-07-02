@@ -131,27 +131,45 @@ def _render_markdown(results: dict[str, Any]) -> str:
 
 
 def _wrap_html(markdown_text: str, title: str = "Report") -> str:
-    """Wrap Markdown in a minimal HTML page with inline CSS (no external deps)."""
+    """Wrap Markdown in a minimal HTML page with inline CSS (no external deps).
+
+    Tables get a `<caption>` from the nearest preceding heading/bold line and
+    proper `scope="col"`/`scope="row"` header cells, so screen readers can
+    announce what each table is and which row/column a cell belongs to.
+    """
     escaped = markdown_text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     # Convert basic Markdown to HTML for browser rendering
     lines_out = []
     in_table = False
+    table_header_row = False
+    last_heading = ""
     for line in escaped.split("\n"):
         if line.startswith("# "):
-            lines_out.append(f"<h1>{line[2:]}</h1>")
+            last_heading = line[2:]
+            lines_out.append(f"<h1>{last_heading}</h1>")
         elif line.startswith("## "):
-            lines_out.append(f"<h2>{line[3:]}</h2>")
+            last_heading = line[3:]
+            lines_out.append(f"<h2>{last_heading}</h2>")
         elif line.startswith("### "):
-            lines_out.append(f"<h3>{line[4:]}</h3>")
+            last_heading = line[4:]
+            lines_out.append(f"<h3>{last_heading}</h3>")
         elif line.startswith("|"):
             if not in_table:
                 lines_out.append("<table>")
+                if last_heading:
+                    lines_out.append(f"<caption>{last_heading}</caption>")
                 in_table = True
+                table_header_row = True
             if set(line.replace("|", "").replace("-", "").strip()) <= {""}:
                 continue  # skip separator row
             cells = [c.strip() for c in line.strip("|").split("|")]
-            tag = "th" if lines_out and lines_out[-1] == "<table>" else "td"
-            row_html = "".join(f"<{tag}>{c}</{tag}>" for c in cells)
+            if table_header_row:
+                row_html = "".join(f'<th scope="col">{c}</th>' for c in cells)
+                table_header_row = False
+            else:
+                row_html = f'<th scope="row">{cells[0]}</th>' + "".join(
+                    f"<td>{c}</td>" for c in cells[1:]
+                )
             lines_out.append(f"<tr>{row_html}</tr>")
         else:
             if in_table:
@@ -160,7 +178,8 @@ def _wrap_html(markdown_text: str, title: str = "Report") -> str:
             if line.startswith("---"):
                 lines_out.append("<hr>")
             elif line.startswith("**") and line.endswith("**"):
-                lines_out.append(f"<strong>{line[2:-2]}</strong>")
+                last_heading = line[2:-2]
+                lines_out.append(f"<strong>{last_heading}</strong>")
             elif line == "":
                 lines_out.append("<br>")
             else:
@@ -177,6 +196,7 @@ def _wrap_html(markdown_text: str, title: str = "Report") -> str:
 <style>
   body {{ font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }}
   table {{ border-collapse: collapse; width: 100%; margin: 1rem 0; }}
+  caption {{ caption-side: top; text-align: left; font-weight: 600; padding: 0.3rem 0; color: #1a1a2e; }}
   th, td {{ border: 1px solid #ccc; padding: 0.4rem 0.8rem; text-align: left; }}
   th {{ background: #f0f0f0; }}
   h1, h2, h3 {{ color: #1a1a2e; }}
